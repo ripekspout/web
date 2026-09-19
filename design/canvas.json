@@ -1,0 +1,18 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1440, "h": 4700, "title": "Homepage", "page": "page-1" },
+    { "file": "DirectionA.dc.html", "x": 0, "y": 0, "w": 760, "h": 900, "title": "Direction A (chosen)", "page": "page-2" },
+    { "file": "DirectionB.dc.html", "x": 840, "y": 0, "w": 760, "h": 780, "title": "Direction B", "page": "page-2" },
+    { "file": "DirectionC.dc.html", "x": 1680, "y": 0, "w": 760, "h": 700, "title": "Direction C", "page": "page-2" }
+  ],
+  "annotations": [
+    { "id": "note-a", "x": 0, "y": -90, "w": 300, "text": "Direction A — Minimal Studio (chosen for the homepage)", "page": "page-2" },
+    { "id": "note-b", "x": 840, "y": -90, "w": 300, "text": "Direction B — Warm Editorial", "page": "page-2" },
+    { "id": "note-c", "x": 1680, "y": -90, "w": 300, "text": "Direction C — Bold Dark Tech", "page": "page-2" }
+  ],
+  "pages": [
+    { "id": "page-1", "name": "Homepage" },
+    { "id": "page-2", "name": "Direction Sketches" }
+  ],
+  "launch": { "view": "focused", "file": "Main.dc.html" }
+}

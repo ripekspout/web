@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #faf9f6; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #14130f; }
+    h1, .heading { font-family: "Manrope", system-ui, sans-serif; }
+    a { color: #14130f; }
+  </style>
+</helmet>
+
+<div style="width: 760px; display: flex; flex-direction: column; gap: 40px; padding: 48px 48px 56px;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    <div class="heading" style="font-size: 16px; font-weight: 800; letter-spacing: -0.01em;">POUCHWORKS</div>
+    <div style="font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8578;">Minimal Studio</div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 20px;">
+    <div style="font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #8a8578; font-weight: 700;">One Platform — Two Industries</div>
+    <div class="heading" style="font-size: 44px; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em;">
+      Stand-up pouches,<br>engineered around<br>your spout.
+    </div>
+    <div style="font-size: 15px; color: #5b5748; max-width: 460px; line-height: 1.5;">
+      Food-grade barrier films for the kitchen, refill-ready pouches for the vanity. One manufacturing partner, precise either way.
+    </div>
+    <div style="display: flex; gap: 12px; margin-top: 8px;">
+      <button style="background: #14130f; color: #fff; font-size: 13px; font-weight: 700; padding: 13px 22px; border: none; border-radius: 2px;">For Food &amp; Beverage</button>
+      <button style="background: transparent; color: #14130f; font-size: 13px; font-weight: 700; padding: 12px 22px; border: 1px solid #14130f; border-radius: 2px;">For Fashion &amp; Beauty</button>
+    </div>
+  </div>
+
+  <div style="display: flex; height: 220px; border: 1px solid #e4e0d5;">
+    <div style="width: 50%; height: 100%; background: linear-gradient(160deg, #f1ece1 0%, #e3d9c6 100%); position: relative;">
+      <div style="position: absolute; bottom: 12px; left: 14px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #7a725f;">Food &amp; Beverage</div>
+    </div>
+    <div style="width: 1px; background: #e4e0d5;"></div>
+    <div style="width: 50%; height: 100%; background: linear-gradient(160deg, #f1e4e6 0%, #ddc2c8 100%); position: relative;">
+      <div style="position: absolute; bottom: 12px; right: 14px; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #7a5f62;">Fashion &amp; Beauty</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1px; background: #e4e0d5; border: 1px solid #e4e0d5; margin-top: 8px;">
+    <div style="background: #faf9f6; padding: 28px; display: flex; flex-direction: column; gap: 10px;">
+      <div class="heading" style="font-size: 12px; font-weight: 800; color: #b5ac97;">01</div>
+      <div class="heading" style="font-size: 17px; font-weight: 700;">Food &amp; Beverage</div>
+      <div style="font-size: 13px; color: #7a725f; line-height: 1.5;">Aroma and oxygen barrier films, retort-stable seams, FDA-grade materials.</div>
+    </div>
+    <div style="background: #faf9f6; padding: 28px; display: flex; flex-direction: column; gap: 10px;">
+      <div class="heading" style="font-size: 12px; font-weight: 800; color: #b5ac97;">02</div>
+      <div class="heading" style="font-size: 17px; font-weight: 700;">Fashion &amp; Beauty</div>
+      <div style="font-size: 13px; color: #7a725f; line-height: 1.5;">Leak-proof caps, refill formats, finishes that read premium on shelf.</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

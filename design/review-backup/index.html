@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pouchworks — Custom Stand-Up Pouches</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="description" content="Custom stand-up pouches with precision spouts, for food and beverage brands and fashion and beauty brands that ship at scale.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="orbit-bg" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="page">
+
+  <nav class="nav">
+    <a href="#" class="head">POUCHWORKS</a>
+    <div class="nav-links">
+      <a href="#configure">Configure</a>
+      <a href="#process">Process</a>
+      <a href="#sustainability">Sustainability</a>
+      <a href="#specs">Specs</a>
+    </div>
+    <a href="#quote" class="btn btn-primary nav-cta">Get a Quote</a>
+  </nav>
+
+  <section class="hero">
+    <div class="inner">
+      <span class="eyebrow" data-reveal>One Platform — Two Industries</span>
+      <h1 class="head" data-reveal="head">Stand-up pouches, engineered around your spout.</h1>
+      <p data-reveal>Food-grade barrier films for the kitchen, refill-ready pouches for the vanity — one manufacturing partner, precise either way.</p>
+      <div class="actions" data-reveal>
+        <a href="#configure" class="btn btn-primary">Configure your pouch</a>
+        <a href="#specs" class="btn btn-secondary">Download specs</a>
+      </div>
+
+      <!-- Commercial figures below are placeholders — replace with real capability data before launch. -->
+      <ul class="spec-strip" data-reveal-group>
+        <li data-reveal><span class="spec-strip-value">50ml – 5L</span><span class="spec-strip-label">Fill volumes</span></li>
+        <li data-reveal><span class="spec-strip-value">[5,000]</span><span class="spec-strip-label">Minimum order</span></li>
+        <li data-reveal><span class="spec-strip-value">[2–3 wks]</span><span class="spec-strip-label">Lead time</span></li>
+        <li data-reveal><span class="spec-strip-value">[FDA / ISO]</span><span class="spec-strip-label">Certified</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="configurator" id="configure">
+    <div class="section-scrim"></div>
+    <div class="inner">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>Configure</span>
+        <h2 class="head" data-reveal="head">Tell us what's going inside</h2>
+        <p data-reveal>Pick your product and volume. The spec below is what we'd recommend building — and the pouch behind it changes to match.</p>
+      </div>
+
+      <div class="config-shell">
+        <form class="config-choices" id="config-form">
+          <fieldset class="config-group">
+            <legend>Industry</legend>
+            <div class="pill-row" data-field="industry">
+              <label class="pill"><input type="radio" name="industry" value="food" checked><span>Food &amp; Beverage</span></label>
+              <label class="pill"><input type="radio" name="industry" value="beauty"><span>Fashion &amp; Beauty</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="config-group">
+            <legend>Product</legend>
+            <div class="pill-row pill-row-wrap" data-field="product" id="product-options"></div>
+          </fieldset>
+
+          <fieldset class="config-group">
+            <legend>Fill volume</legend>
+            <div class="pill-row pill-row-wrap" data-field="volume" id="volume-options"></div>
+          </fieldset>
+        </form>
+
+        <div class="config-stage" id="config-stage">
+          <span class="stage-hint">Drag to rotate</span>
+        </div>
+
+        <div class="config-output">
+          <div class="config-output-head">
+            <span class="eyebrow">Recommended build</span>
+            <h3 class="head" id="spec-title">Sauce &amp; Condiment — 500 ml</h3>
+          </div>
+          <dl class="spec-list" id="spec-list"></dl>
+          <button type="button" class="btn btn-primary" id="use-spec">Use this spec →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="process" id="process">
+    <div class="section-scrim"></div>
+    <div class="inner">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>Process</span>
+        <h2 class="head" data-reveal="head">From spec to pallet</h2>
+      </div>
+      <ol class="process-row" data-reveal-group>
+        <li class="process-step is-first" data-reveal>
+          <div class="dot">1</div>
+          <span class="step-when">Day 0</span>
+          <h3>Sample Request</h3>
+          <p>Send us your spec — or the one you just configured. A sample kit ships the same week.</p>
+        </li>
+        <li class="process-step" data-reveal>
+          <div class="dot">2</div>
+          <span class="step-when">Day 3</span>
+          <h3>Design Proof</h3>
+          <p>You approve print, film structure and spout spec before we cut a single tool.</p>
+        </li>
+        <li class="process-step" data-reveal>
+          <div class="dot">3</div>
+          <span class="step-when">Week 2</span>
+          <h3>Production</h3>
+          <p>Your run goes to press, with seal and barrier checks at every stage.</p>
+        </li>
+        <li class="process-step" data-reveal>
+          <div class="dot">4</div>
+          <span class="step-when">Week 5</span>
+          <h3>Delivery</h3>
+          <p>Palletised, documented and shipped worldwide on your schedule.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sustainability" id="sustainability">
+    <div class="section-scrim"></div>
+    <div class="inner">
+      <div class="sustainability-content">
+        <span class="eyebrow" data-reveal>Sustainability</span>
+        <h2 class="head" data-reveal="head">Mono-material, without losing the barrier</h2>
+        <p data-reveal>Conventional pouches laminate three incompatible plastics together, which is what makes them unrecyclable. Our mono-material line uses a single polymer family, so the finished pouch goes into existing film recycling streams.</p>
+        <div class="compare" data-reveal-group>
+          <div class="compare-col" data-reveal>
+            <span class="compare-tag">Conventional</span>
+            <span class="compare-value">PET / AL / PE</span>
+            <span class="compare-note">Three polymers laminated — not separable, not recyclable.</span>
+          </div>
+          <div class="compare-col is-better" data-reveal>
+            <span class="compare-tag">Mono-material</span>
+            <span class="compare-value">Mono-PE</span>
+            <span class="compare-note">One polymer family — store drop-off recyclable, comparable shelf life.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="specs" id="specs">
+    <div class="section-scrim"></div>
+    <div class="inner">
+      <div class="section-head">
+        <span class="eyebrow" data-reveal>Specs &amp; Downloads</span>
+        <h2 class="head" data-reveal="head">Everything your team needs to spec us in</h2>
+        <p data-reveal>No form wall. Take the files to your designer, your QA lead, or your co-packer.</p>
+      </div>
+      <ul class="download-list" data-reveal-group>
+        <li data-reveal>
+          <a href="#">
+            <span class="download-name">Dieline templates</span>
+            <span class="download-meta">AI + PDF · all stock sizes</span>
+            <span class="download-cue">Download</span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a href="#">
+            <span class="download-name">Material data sheets</span>
+            <span class="download-meta">PDF · barrier, thickness, seal strength</span>
+            <span class="download-cue">Download</span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a href="#">
+            <span class="download-name">Fill compatibility guide</span>
+            <span class="download-meta">PDF · pH, fat content, hot fill limits</span>
+            <span class="download-cue">Download</span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a href="#">
+            <span class="download-name">Artwork guidelines</span>
+            <span class="download-meta">PDF · bleed, spot-UV, foil registration</span>
+            <span class="download-cue">Download</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="quote" id="quote">
+    <div class="inner">
+      <div class="quote-copy">
+        <span class="eyebrow" style="color:var(--on-ink-muted)" data-reveal>Get Started</span>
+        <h2 class="head" data-reveal="head">Get a costed quote in 24 hours</h2>
+        <ul data-reveal-group>
+          <li data-reveal>Send your spec, or the one you configured above</li>
+          <li data-reveal>We come back with a costed build sheet</li>
+          <li data-reveal>Sample kit ships within the week</li>
+        </ul>
+      </div>
+      <form class="quote-form" action="#" method="post">
+        <div class="grid-2">
+          <div class="field">
+            <label for="q-industry">Industry</label>
+            <select id="q-industry" name="industry">
+              <option value="food">Food &amp; Beverage</option>
+              <option value="beauty">Fashion &amp; Beauty</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="q-product">Product Type</label>
+            <input id="q-product" name="product" type="text" placeholder="e.g. hot sauce, hand lotion">
+          </div>
+          <div class="field">
+            <label for="q-volume">Fill Volume</label>
+            <input id="q-volume" name="volume" type="text" placeholder="e.g. 500 ml">
+          </div>
+          <div class="field">
+            <label for="q-quantity">Estimated Quantity</label>
+            <input id="q-quantity" name="quantity" type="text" placeholder="units / month">
+          </div>
+          <div class="field">
+            <label for="q-name">Name</label>
+            <input id="q-name" name="name" type="text" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="q-email">Email</label>
+            <input id="q-email" name="email" type="email" autocomplete="email">
+          </div>
+        </div>
+        <div class="field">
+          <label for="q-details">Project Details</label>
+          <textarea id="q-details" name="details" placeholder="Anything else we should know?"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="align-self:flex-start">Submit Request</button>
+      </form>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="section-scrim"></div>
+    <div class="inner">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <span class="head" style="font-size:18px;font-weight:800;">POUCHWORKS</span>
+          <p>Custom stand-up pouches with precision spouts, for food and beauty brands that ship at scale.</p>
+          <div class="footer-social"><span></span><span></span><span></span></div>
+        </div>
+        <div class="footer-col">
+          <span class="eyebrow">Quick Links</span>
+          <a href="#configure">Configure</a>
+          <a href="#process">Process</a>
+          <a href="#sustainability">Sustainability</a>
+          <a href="#quote">Get a Quote</a>
+        </div>
+        <div class="footer-col">
+          <span class="eyebrow">Downloads</span>
+          <a href="#specs">Dielines</a>
+          <a href="#specs">Data sheets</a>
+          <a href="#specs">Artwork guides</a>
+        </div>
+        <div class="footer-col">
+          <span class="eyebrow">Contact</span>
+          <span>[hello@pouchworks.com]</span>
+          <span>[+1 000 000 0000]</span>
+          <span>[City, Country]</span>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>[© 2026 Pouchworks. All rights reserved.]</span>
+        <div class="legal"><span>Privacy Policy</span><span>Terms of Service</span></div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "./js/vendor/three.module.min.js",
+    "three/addons/": "./js/vendor/"
+  }
+}
+</script>
+<script type="module" src="js/orbit.js"></script>
+<script src="js/configurator.js"></script>
+<script src="js/motion.js"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: #0e0e10; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #f2f1ee;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .head { font-family: "Space Grotesk", system-ui, sans-serif; }
+    a { color: #8fe3d0; }
+  </style>
+</helmet>
+
+<div style="width: 760px; display: flex; flex-direction: column; gap: 36px; padding: 48px 48px 56px;">
+
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    <div class="head" style="font-size: 17px; font-weight: 700; letter-spacing: -0.01em;">POUCHWORKS</div>
+    <div style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #6f6d68; font-weight: 700;">Bold Dark Tech</div>
+  </div>
+
+  <div style="position: relative; border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
+    <div style="display: flex; height: 230px;">
+      <div style="width: 50%; height: 100%; background: linear-gradient(160deg, #123a3a 0%, #0e0e10 100%);"></div>
+      <div style="width: 50%; height: 100%; background: linear-gradient(200deg, #3a1a2e 0%, #0e0e10 100%);"></div>
+    </div>
+    <div style="position: absolute; inset: 0; background: radial-gradient(120% 100% at 50% 100%, rgba(0,0,0,0.55), transparent 60%);"></div>
+    <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: 0 36px; backdrop-filter: blur(0.5px);">
+      <div style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #8fe3d0; font-weight: 700;">Two Industries. One System.</div>
+      <div class="head" style="font-size: 38px; font-weight: 700; line-height: 1.08; letter-spacing: -0.01em; max-width: 520px;">
+        Pouches engineered <span style="background: linear-gradient(90deg,#8fe3d0,#f2a65a); -webkit-background-clip: text; background-clip: text; color: transparent;">spout-first.</span>
+      </div>
+      <div style="font-size: 14px; color: #b7b5af; max-width: 440px; line-height: 1.55;">Precision barrier films and dispensing hardware for food and beauty brands that ship at scale.</div>
+      <div style="display: flex; gap: 12px; margin-top: 6px;">
+        <button style="background: linear-gradient(90deg,#8fe3d0,#f2a65a); color: #0e0e10; font-size: 13px; font-weight: 700; padding: 13px 22px; border: none; border-radius: 8px;">Food &amp; Beverage</button>
+        <button style="background: rgba(255,255,255,0.06); color: #f2f1ee; font-size: 13px; font-weight: 700; padding: 12px 22px; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px;">Fashion &amp; Beauty</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px;">
+    <div style="background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 26px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg,#123a3a,#1c5c58); display: flex; align-items: center; justify-content: center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8fe3d0" stroke-width="1.8"><path d="M7 3c0 3-3 4-3 8a8 8 0 0 0 16 0c0-4-3-5-3-8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="head" style="font-size: 17px; font-weight: 700;">Food &amp; Beverage</div>
+      <div style="font-size: 13px; color: #b7b5af; line-height: 1.55;">Retort-stable, oxygen-barrier pouches built for shelf-stable liquids.</div>
+    </div>
+    <div style="background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 26px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg,#3a1a2e,#5c1c46); display: flex; align-items: center; justify-content: center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f2a65a" stroke-width="1.8"><path d="M12 3c3 2 6 5 6 9a6 6 0 0 1-12 0c0-4 3-7 6-9Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="head" style="font-size: 17px; font-weight: 700;">Fashion &amp; Beauty</div>
+      <div style="font-size: 13px; color: #b7b5af; line-height: 1.55;">Refill-format pouches with premium print finishes and leak-proof caps.</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
