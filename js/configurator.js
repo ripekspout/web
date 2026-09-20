@@ -1,108 +1,108 @@
-/* Illustrative planning data. Replace with approved capabilities before launch. */
+/* The product cards in #products are the single source of truth for every bag's specifications. */
 (() => {
   const form = document.getElementById('config-form');
   if (!form) return;
-  const industries = {
-    food: { products: {
-      sauce: { label: 'Sauce & Condiment', film: 'PET / AL / PE', barrier: 'Oxygen + light', spout: 10, closure: 'Screw cap', fill: 'Hot fill — validate' },
-      juice: { label: 'Juice & Beverage', film: 'PET / MET-PET / PE', barrier: 'Oxygen + light', spout: 8.6, closure: 'Screw cap', fill: 'Cold fill — validate' },
-      oil: { label: 'Oil & Dressing', film: 'PET / AL / PE', barrier: 'Oxygen + light', spout: 10, closure: 'Screw cap', fill: 'Cold fill — validate' },
-      puree: { label: 'Purée & Baby Food', film: 'PET / AL / PP', barrier: 'Product-specific review', spout: 8.6, closure: 'Safety review required', fill: 'Retort — validate' }
-    } },
-    beauty: { products: {
-      lotion: { label: 'Lotion & Cream', film: 'PET / MET-PET / PE', barrier: 'Moisture + light', spout: 10, closure: 'Screw cap', fill: 'Cold fill — validate' },
-      serum: { label: 'Serum & Face Oil', film: 'PET / AL / PE', barrier: 'Light protection', spout: 8.6, closure: 'Screw cap', fill: 'Cold fill — validate' },
-      wash: { label: 'Shampoo & Body Wash', film: 'PET / PE', barrier: 'Moisture', spout: 15, closure: 'Wide-neck screw cap', fill: 'Cold fill — validate' },
-      refill: { label: 'Refill Pack', film: 'PE-based', barrier: 'Product-specific review', spout: 10, closure: 'Screw cap', fill: 'Cold fill — validate' }
-    } }
-  };
-  const volumes = [
-    { id: '100', label: '100 ml', w: .88, h: .90 },
-    { id: '250', label: '250 ml', w: .94, h: .95 },
-    { id: '500', label: '500 ml', w: 1, h: 1 },
-    { id: '1000', label: '1 L', w: 1.07, h: 1.06 },
-    { id: '3000', label: '3 L', w: 1.14, h: 1.12 }
-  ];
-  // Browsers restore checked radios on reload, so the static choices are read from the DOM.
-  const state = {
-    industry: form.querySelector('[name=industry]:checked').value,
-    product: 'sauce',
-    volume: '500',
-    sides: form.querySelector('[name=sides]:checked')?.value ?? 'curved',
-    handle: form.querySelector('[name=handle]:checked')?.value ?? 'none'
-  };
-  const productBox = document.getElementById('product-options');
-  const volumeBox = document.getElementById('volume-options');
+  const bags = [...document.querySelectorAll('.product-card[data-bag]')].map(card => ({
+    id: card.dataset.bag,
+    name: card.dataset.name,
+    short: card.dataset.short,
+    length: Number(card.dataset.length),
+    width: Number(card.dataset.width),
+    thickness: Number(card.dataset.thickness),
+    nozzle: Number(card.dataset.nozzle),
+    position: card.dataset.position,
+    handle: card.dataset.handle === '1'
+  }));
+  if (!bags.length) return;
+  const bagBox = document.getElementById('bag-options');
   const specList = document.getElementById('spec-list');
+  const quoteBag = document.getElementById('q-bag');
+  const state = {
+    bag: bags[0].id,
+    // Browsers restore checked radios on reload, so this is read from the DOM.
+    sides: form.querySelector('[name=sides]:checked')?.value ?? 'curved'
+  };
+  const find = id => bags.find(bag => bag.id === id) ?? bags[0];
+  const current = () => find(state.bag);
+
   function pill(name, value, label, checked) {
     const wrap = document.createElement('label'); wrap.className = 'pill';
     const input = document.createElement('input'); Object.assign(input, { type: 'radio', name, value, checked });
     const text = document.createElement('span'); text.textContent = label;
     wrap.append(input, text); return wrap;
   }
-  function renderProducts() {
-    const products = industries[state.industry].products;
-    if (!products[state.product]) state.product = Object.keys(products)[0];
-    productBox.replaceChildren(...Object.entries(products).map(([id, product]) => pill('product', id, product.label, state.product === id)));
-  }
-  function current() { return { product: industries[state.industry].products[state.product], volume: volumes.find(volume => volume.id === state.volume) }; }
-  function rows() {
-    const { product } = current();
-    return [['Format', 'Stand-up pouch, bottom gusset'], ['Side profile', state.sides === 'straight' ? 'Straight side seals' : 'Natural fill curve'], ['Carry handle', state.handle === 'opposite' ? 'Opposite the spout' : 'None'], ['Example film', product.film], ['Barrier focus', product.barrier], ['Spout diameter', product.spout + ' mm'], ['Closure', product.closure], ['Fill process', product.fill], ['Example MOQ', '5,000 units'], ['Production example', '3–5 weeks']];
+  bagBox.replaceChildren(...bags.map(bag => pill('bag', bag.id, bag.short, bag.id === state.bag)));
+
+  quoteBag.replaceChildren(new Option('Not sure yet', ''), ...bags.map(bag => new Option(bag.name, bag.id)));
+
+  function rows(bag) {
+    return [
+      ['Type', bag.name],
+      ['Length', bag.length + ' mm'],
+      ['Width', bag.width + ' mm'],
+      ['Film thickness', bag.thickness + ' mic'],
+      ['Nozzle diameter', bag.nozzle + ' mm'],
+      ['Nozzle position', bag.position],
+      ['Carry handle', bag.handle ? 'Yes' : 'No']
+    ];
   }
   function pushToRenderer() {
-    const { product, volume } = current();
-    document.dispatchEvent(new CustomEvent('pouch:spec', { detail: { industry: state.industry, straightSides: state.sides === 'straight' ? 1 : 0, handle: state.handle, bodyW: volume.w, bodyH: volume.h, spoutW: { 8.6: .92, 10: 1, 15: 1.15 }[product.spout] } }));
+    const bag = current();
+    document.dispatchEvent(new CustomEvent('pouch:spec', { detail: {
+      straightSides: state.sides === 'straight' ? 1 : 0,
+      spout: bag.position.toLowerCase(),
+      handle: bag.handle ? 'opposite' : 'none',
+      bodyW: .8 + .2 * (bag.length / 140),
+      bodyH: .8 + .2 * (bag.width / 230),
+      spoutW: Math.min(1.3, 1 + (bag.nozzle - 10) * .03)
+    } }));
   }
   function update() {
-    const { product, volume } = current();
-    document.getElementById('spec-title').textContent = `${product.label} — ${volume.label}`;
+    const bag = current();
+    document.getElementById('spec-title').textContent = bag.name;
     specList.replaceChildren();
-    rows().forEach(([term, value]) => {
+    rows(bag).forEach(([term, value]) => {
       const dt = document.createElement('dt'), dd = document.createElement('dd');
       dt.textContent = term; dd.textContent = value;
-      if (term === 'Spout diameter') dd.className = 'is-accent';
+      if (term === 'Nozzle diameter') dd.className = 'is-accent';
       specList.append(dt, dd);
     });
     pushToRenderer();
   }
+  function select(id) {
+    state.bag = find(id).id;
+    const input = bagBox.querySelector(`[value="${state.bag}"]`);
+    if (input) input.checked = true;
+    update();
+  }
+
   form.addEventListener('change', event => {
     const input = event.target;
-    if (!Object.hasOwn(state, input.name)) return;
-    state[input.name] = input.value;
-    if (input.name === 'industry') renderProducts();
+    if (input.name === 'bag') state.bag = input.value;
+    else if (input.name === 'sides') state.sides = input.value;
+    else return;
     update();
   });
-  document.querySelectorAll('[data-industry]').forEach(link => link.addEventListener('click', () => {
-    if (!industries[link.dataset.industry]) return;
-    state.industry = link.dataset.industry;
-    state.product = link.dataset.product;
-    state.volume = state.product === 'refill' ? '1000' : state.industry === 'beauty' ? '250' : '500';
-    state.handle = state.product === 'refill' ? 'opposite' : 'none';
-    form.querySelector(`[name=industry][value=${state.industry}]`).checked = true;
-    form.querySelector(`[name=handle][value=${state.handle}]`).checked = true;
-    renderProducts(); renderVolumes(); update();
+  document.querySelectorAll('[data-bag-link]').forEach(link => link.addEventListener('click', () => select(link.dataset.bagLink)));
+  document.querySelectorAll('[data-ask]').forEach(link => link.addEventListener('click', () => {
+    quoteBag.value = link.dataset.ask;
+    quoteBag.dispatchEvent(new Event('change', { bubbles: true }));
   }));
+
   function buildText() {
-    const { product, volume } = current();
-    return `SAMPLE BUILD — ${product.label} / ${volume.label}\n` + rows().map(row => row.join(': ')).join('\n') + '\nIllustrative only. Requires technical validation. Freight is separate.';
+    const bag = current();
+    return `REPACK — ${bag.name}\n` + rows(bag).map(row => row.join(': ')).join('\n') +
+      '\n\nSpecifications as listed by REPACK. Contact our team to confirm availability and quantities.\n' +
+      'REPACK Packaging · rkkadm@gmail.com · +62 (021) 29437922 · Mon – Sat: 8:30 AM – 5:00 PM\n';
   }
-  let previousBuild = '';
   document.getElementById('use-spec').addEventListener('click', () => {
-    const { product, volume } = current();
-    document.getElementById('q-industry').value = state.industry;
-    document.getElementById('q-product').value = product.label;
-    document.getElementById('q-volume').value = volume.label;
-    const details = document.getElementById('q-details');
-    const existing = previousBuild ? details.value.replace(previousBuild, '').trim() : details.value.trim();
-    previousBuild = buildText();
-    details.value = existing ? `${existing}\n\n${previousBuild}` : previousBuild;
-    details.dispatchEvent(new Event('input', { bubbles: true }));
+    quoteBag.value = state.bag;
+    quoteBag.dispatchEvent(new Event('change', { bubbles: true }));
     document.getElementById('quote').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
-    document.getElementById('q-quantity').focus({ preventScroll: true });
+    document.getElementById('q-product').focus({ preventScroll: true });
   });
-  document.getElementById('download-build').addEventListener('click', () => window.Repack.download('repack-sample-build.txt', buildText()));
-  function renderVolumes() { volumeBox.replaceChildren(...volumes.map(volume => pill('volume', volume.id, volume.label, state.volume === volume.id))); }
-  renderProducts(); renderVolumes(); update();
+  document.getElementById('download-build').addEventListener('click', () => window.Repack.download(`repack-${current().id}-specs.txt`, buildText()));
+
+  update();
   window.addEventListener('load', pushToRenderer);
 })();

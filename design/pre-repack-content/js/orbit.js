@@ -43,7 +43,6 @@ async function createView(mount) {
   const pivot = new THREE.Group(); scene.add(pivot);
   let body, spout, handleGroup, baseHeight = .28, ready = false, pending = false, failed = false;
   const spoutHome = new THREE.Vector3();
-  let variant = 'side', wantedVariant = 'side'; // where the spout sits: on the top corner, or centred
   const shape = { bodyW: 1, bodyH: 1, spoutW: 1, straightSides: 0 };
   let handleEnabled = false;
   // Straight sides are a morph target on the body: 0 = natural curve, 1 = straight.
@@ -116,8 +115,6 @@ async function createView(mount) {
   if (interactive) document.addEventListener('pouch:spec', event => {
     for (const key of Object.keys(shape)) if (Number.isFinite(event.detail[key])) shape[key] = event.detail[key];
     handleEnabled = event.detail.handle === 'opposite';
-    wantedVariant = event.detail.spout === 'center' ? 'center' : 'side';
-    if (ready && wantedVariant !== variant && assemble(wantedVariant)) syncSpoutButton();
     currentColour = event.detail.industry === 'beauty' ? 0xcac4d3 : 0xe9dfc8;
     setSideGoal(shape.straightSides ? 1 : 0);
     applyShape();
@@ -138,163 +135,55 @@ async function createView(mount) {
   let gltf;
   try { gltf = await model; } catch { renderer.dispose(); environment.dispose(); fail(); return; }
   if (failed) return;
-  /* The model has its spout on a chamfered top corner ("side"). A "center" bag is built from the same file:
-     the corner is filled out symmetrically and the spout is stood upright on the top edge. */
-  let bodyParts = [];
-  function assemble(next) {
-    variant = next;
-    cancelAnimationFrame(openFrame); openFrame = 0;
-    pivot.traverse(node => {
-      if (!node.isMesh) return;
-      node.geometry.dispose();
-      [].concat(node.material).forEach(material => material.dispose());
-    });
-    pivot.clear();
-    bodyMaterials.length = 0;
-    body = spout = handleGroup = cap = bore = null;
-    sideMorph = null; spoutShiftX = 0; openMix = 0; openGoal = 0;
-    bodyParts = [];
-    const spoutParts = [];
-    const root = gltf.scene.clone(true);
-    root.traverse(node => {
-      if (!node.isMesh) return;
-      node.geometry = node.geometry.clone();
-      const packedPosition = node.geometry.getAttribute('position');
-      const positionValues = new Float32Array(packedPosition.count * 3);
-      for (let index = 0; index < packedPosition.count; index++) {
-        positionValues[index * 3] = packedPosition.getX(index);
-        positionValues[index * 3 + 1] = packedPosition.getY(index);
-        positionValues[index * 3 + 2] = packedPosition.getZ(index);
-      }
-      node.geometry.setAttribute('position', new THREE.BufferAttribute(positionValues, 3));
-      node.material = node.material.clone();
-      const material = node.material;
-      const name = material.name || '';
-      if (/front film|back film/i.test(name)) { material.color.setHex(currentColour); bodyMaterials.push(material); }
-      else if (/heat seal/i.test(name)) material.color.setHex(0xded2b8);
-      else if (/gusset/i.test(name)) material.color.setHex(0xeae0ca); // the base is the same film as the body, just in shade
-      else if (/cap|spout|flange|tamper/i.test(name)) material.color.setHex(0xbe5f2c);
-      if (/film|seal|gusset/i.test(name)) material.roughness = .3;
-      material.envMapIntensity = .6;
-      const label = `${node.name || ''} ${node.parent?.name || ''} ${name}`;
-      (/spout|cap|flange|tamper/i.test(label) ? spoutParts : bodyParts).push(node);
-    });
-    if (!bodyParts.length) { fail(); return false; }
-    // Preserve transforms from mesh quantisation when regrouping the source model.
-    pivot.add(root); root.updateWorldMatrix(true, true);
-    body = new THREE.Group(); pivot.add(body);
-    bodyParts.forEach(part => body.attach(part));
-    if (variant === 'center') centreTheSpout(bodyParts, spoutParts);
-    straightenBottom(bodyParts);
-    foldBase(bodyParts);
-    if (interactive) sideMorph = buildSideMorph(bodyParts);
-    const frame = new THREE.Box3();
-    if (spoutParts.length) {
-      const bounds = new THREE.Box3(); spoutParts.forEach(part => bounds.expandByObject(part)); bounds.getCenter(spoutHome);
-      // Average the edge movement over the height the spout occupies on the shoulder.
-      if (sideMorph && variant === 'side') spoutShiftX = (sideMorph.edgeShiftAt(bounds.min.y) + sideMorph.edgeShiftAt(bounds.max.y)) / 2;
-      // A centred spout scales about its weld flange, so it stays seated on the top edge as it grows.
-      if (variant === 'center') spoutHome.copy(centreFlange);
-      spout = new THREE.Group(); spout.position.copy(spoutHome); pivot.add(spout);
-      const inner = new THREE.Group(); inner.position.copy(spoutHome).multiplyScalar(-1); spout.add(inner);
-      spoutParts.forEach(part => inner.attach(part));
-      if (interactive) setupOpening(spoutParts, inner);
-      if (variant === 'center') frame.copy(bounds);
+  const root = gltf.scene.clone(true), bodyParts = [], spoutParts = [];
+  root.traverse(node => {
+    if (!node.isMesh) return;
+    node.geometry = node.geometry.clone();
+    const packedPosition = node.geometry.getAttribute('position');
+    const positionValues = new Float32Array(packedPosition.count * 3);
+    for (let index = 0; index < packedPosition.count; index++) {
+      positionValues[index * 3] = packedPosition.getX(index);
+      positionValues[index * 3 + 1] = packedPosition.getY(index);
+      positionValues[index * 3 + 2] = packedPosition.getZ(index);
     }
-    const bounds = new THREE.Box3().setFromObject(body);
-    if (interactive) {
-      handleGroup = createCarryHandle(bounds);
-      body.add(handleGroup);
-    }
-    // A standing spout adds height above the body, and the camera has to frame all of it.
-    frame.union(bounds);
-    baseHeight = frame.max.y - frame.min.y;
-    sideMix = sideMorph ? sideGoal : 0; // a restored "straight" choice shows immediately, not eased in
-    ready = true; applyShape();
-    return true;
+    node.geometry.setAttribute('position', new THREE.BufferAttribute(positionValues, 3));
+    node.material = node.material.clone();
+    const material = node.material;
+    const name = material.name || '';
+    if (/front film|back film/i.test(name)) { material.color.setHex(currentColour); bodyMaterials.push(material); }
+    else if (/heat seal/i.test(name)) material.color.setHex(0xded2b8);
+    else if (/gusset/i.test(name)) material.color.setHex(0xeae0ca); // the base is the same film as the body, just in shade
+    else if (/cap|spout|flange|tamper/i.test(name)) material.color.setHex(0xbe5f2c);
+    if (/film|seal|gusset/i.test(name)) material.roughness = .3;
+    material.envMapIntensity = .6;
+    const label = `${node.name || ''} ${node.parent?.name || ''} ${name}`;
+    (/spout|cap|flange|tamper/i.test(label) ? spoutParts : bodyParts).push(node);
+  });
+  if (!bodyParts.length) { fail(); return; }
+  // Preserve transforms from mesh quantisation when regrouping the source model.
+  pivot.add(root); root.updateWorldMatrix(true, true);
+  body = new THREE.Group(); pivot.add(body);
+  bodyParts.forEach(part => body.attach(part));
+  straightenBottom(bodyParts);
+  foldBase(bodyParts);
+  if (interactive) sideMorph = buildSideMorph(bodyParts);
+  if (spoutParts.length) {
+    const bounds = new THREE.Box3(); spoutParts.forEach(part => bounds.expandByObject(part)); bounds.getCenter(spoutHome);
+    // Average the edge movement over the height the spout occupies on the shoulder.
+    if (sideMorph) spoutShiftX = (sideMorph.edgeShiftAt(bounds.min.y) + sideMorph.edgeShiftAt(bounds.max.y)) / 2;
+    spout = new THREE.Group(); spout.position.copy(spoutHome); pivot.add(spout);
+    const inner = new THREE.Group(); inner.position.copy(spoutHome).multiplyScalar(-1); spout.add(inner);
+    spoutParts.forEach(part => inner.attach(part));
+    if (interactive) setupOpening(spoutParts, inner);
   }
-
-  const centreFlange = new THREE.Vector3();
-  function centreTheSpout(parts, spoutParts) {
-    body.updateWorldMatrix(true, true);
-    const films = parts.filter(part => /front film|back film/i.test(part.material.name));
-    const box = new THREE.Box3(); films.forEach(part => box.expandByObject(part));
-    const minY = box.min.y, topY = box.max.y, height = topY - minY;
-    const BINS = 96, binHeight = height / BINS;
-    const left = new Array(BINS).fill(Infinity), right = new Array(BINS).fill(-Infinity);
-    const world = new THREE.Vector3(), local = new THREE.Vector3();
-    films.forEach(part => {
-      part.updateWorldMatrix(true, false);
-      const position = part.geometry.getAttribute('position');
-      for (let index = 0; index < position.count; index++) {
-        world.fromBufferAttribute(position, index).applyMatrix4(part.matrixWorld);
-        const bin = THREE.MathUtils.clamp(Math.floor((world.y - minY) / binHeight), 0, BINS - 1);
-        if (world.x < left[bin]) left[bin] = world.x;
-        if (world.x > right[bin]) right[bin] = world.x;
-      }
-    });
-    for (let i = BINS - 2; i >= 0; i--) if (!Number.isFinite(left[i])) { left[i] = left[i + 1]; right[i] = right[i + 1]; }
-    for (let i = 1; i < BINS; i++) if (!Number.isFinite(left[i])) { left[i] = left[i - 1]; right[i] = right[i - 1]; }
-    const centreY = index => minY + (index + .5) * binHeight;
-    const sample = (profile, y) => {
-      const at = THREE.MathUtils.clamp((y - minY) / binHeight - .5, 0, BINS - 1);
-      const lower = Math.floor(at);
-      return THREE.MathUtils.lerp(profile[lower], profile[Math.min(BINS - 1, lower + 1)], at - lower);
-    };
-
-    // Where the left edge leaves the straight wall and starts running toward the spout.
-    const wall = sample(left, minY + height * .6);
-    let start = topY;
-    for (let i = Math.floor(BINS * .6); i < BINS; i++) if (left[i] > wall + height * .01) { start = centreY(i); break; }
-    const middle = (sample(left, start) + sample(right, start)) / 2;
-    const blend = height * .03;
-    // Mirror the right edge across the middle, easing in over a few millimetres so no kink shows.
-    const targetLeft = y => {
-      const l = sample(left, y), mirrored = 2 * middle - sample(right, y);
-      return l + (mirrored - l) * THREE.MathUtils.clamp((y - (start - blend)) / blend, 0, 1);
-    };
-    parts.forEach(part => {
-      part.updateWorldMatrix(true, false);
-      const inverseWorld = part.matrixWorld.clone().invert();
-      const position = part.geometry.getAttribute('position');
-      for (let index = 0; index < position.count; index++) {
-        local.fromBufferAttribute(position, index);
-        world.copy(local).applyMatrix4(part.matrixWorld);
-        if (world.y > start - blend) {
-          const l = sample(left, world.y), r = sample(right, world.y), tl = targetLeft(world.y);
-          world.x = tl + (world.x - l) * (r - tl) / Math.max(r - l, 1e-6);
-          position.setXYZ(index, ...world.applyMatrix4(inverseWorld).toArray());
-        }
-      }
-      position.needsUpdate = true;
-      part.geometry.computeBoundingBox(); part.geometry.computeBoundingSphere();
-    });
-
-    // Stand the spout upright with its weld flange on the top edge, at the middle.
-    const find = pattern => spoutParts.find(part => pattern.test(part.name));
-    const flangePart = find(/flange/i), capPart = find(/^cap/i);
-    if (!flangePart || !capPart) return;
-    const centreOf = part => new THREE.Box3().setFromObject(part).getCenter(new THREE.Vector3());
-    spoutParts.forEach(part => part.updateWorldMatrix(true, false));
-    const flange = centreOf(flangePart);
-    const axis = centreOf(capPart).sub(flange).normalize();
-    const upright = new THREE.Quaternion().setFromUnitVectors(axis, new THREE.Vector3(0, 1, 0));
-    centreFlange.set(middle, topY + height * .004, 0);
-    const move = new THREE.Matrix4()
-      .makeTranslation(centreFlange.x, centreFlange.y, centreFlange.z)
-      .multiply(new THREE.Matrix4().makeRotationFromQuaternion(upright))
-      .multiply(new THREE.Matrix4().makeTranslation(-flange.x, -flange.y, -flange.z));
-    spoutParts.forEach(part => {
-      // Bake the whole move into the vertices so the part's own transform can go back to identity.
-      part.geometry.applyMatrix4(part.matrixWorld.clone().premultiply(move));
-      part.removeFromParent();
-      part.position.set(0, 0, 0); part.quaternion.identity(); part.scale.set(1, 1, 1);
-      part.updateMatrix();
-      pivot.add(part);
-      part.updateWorldMatrix(true, false);
-    });
+  const bounds = new THREE.Box3().setFromObject(body);
+  if (interactive) {
+    handleGroup = createCarryHandle(bounds);
+    body.add(handleGroup);
   }
-  if (!assemble(wantedVariant)) return;
+  baseHeight = bounds.max.y - bounds.min.y;
+  sideMix = sideMorph ? sideGoal : 0; // a restored "straight" choice shows immediately, not eased in
+  ready = true; applyShape();
   new ResizeObserver(requestDraw).observe(mount);
   document.addEventListener('visibilitychange', requestDraw);
   if (heroView) {

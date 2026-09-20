@@ -22,15 +22,9 @@
   });
   document.addEventListener('click', event => { if (!event.target.closest('.nav')) closeMenu(); });
   window.matchMedia('(min-width: 801px)').addEventListener('change', event => { if (event.matches) closeMenu(); });
-
   const form = document.getElementById('quote-form');
   const result = document.getElementById('quote-result');
   const status = document.getElementById('quote-status');
-  const whatsapp = document.getElementById('send-whatsapp');
-  const email = document.getElementById('send-email');
-  // Contact details live in the page; the enquiry links reuse them so they can't drift apart.
-  const salesNumber = document.querySelector('[data-contact=whatsapp-sales]').href.split('/').pop().split('?')[0];
-  const emailAddress = document.querySelector('[data-contact=email]').textContent.trim();
   let prepared = '';
   form.addEventListener('input', () => {
     result.hidden = true; prepared = '';
@@ -45,19 +39,16 @@
     }
     if (!form.reportValidity()) return;
     const data = new FormData(form);
-    const bagSelect = document.getElementById('q-bag');
-    const bagName = bagSelect.value ? bagSelect.selectedOptions[0].textContent : '';
-    const value = key => String(data.get(key) || '').trim();
-    prepared = 'Hello REPACK, I would like to ask about your spout bags.\n\n' +
-      [['Bag', bagName || 'Not sure yet'], ['Filling', value('product')], ['Quantity', value('quantity') || 'To confirm'], ['Name', value('name')], ['Phone / WhatsApp', value('phone') || '—'], ['Email', value('email') || '—'], ['Notes', value('details') || '—']].map(([label, text]) => `${label}: ${text}`).join('\n');
-    whatsapp.href = `https://wa.me/${salesNumber}?text=${encodeURIComponent(prepared)}`;
-    email.href = `mailto:${emailAddress}?subject=${encodeURIComponent('Spout bag enquiry' + (bagName ? ' — ' + bagName : ''))}&body=${encodeURIComponent(prepared)}`;
+    const industry = data.get('industry') === 'food' ? 'Food & beverage' : 'Beauty & personal care';
+    prepared = 'REPACK — PROJECT BRIEF\nDesign preview. This brief has not been sent.\n\n' +
+      [['Name', data.get('name')], ['Email', data.get('email')], ['Industry', industry], ['Product', data.get('product')], ['Fill volume', data.get('volume')], ['Quantity', data.get('quantity')], ['Project details', data.get('details')]].map(([label, value]) => `${label}: ${String(value || '').trim() || 'To confirm'}`).join('\n') +
+      '\n\nAll sample specifications and figures require confirmation before production.\n';
     result.hidden = false;
-    status.textContent = 'Your enquiry is ready. Choose how to send it — nothing has been sent yet.';
-    whatsapp.focus({ preventScroll: true });
+    status.textContent = 'Your preview brief is ready. Download a copy below. Nothing has been sent.';
+    document.getElementById('download-brief').focus({ preventScroll: true });
     result.scrollIntoView({ block: 'nearest', behavior: 'auto' });
   });
-  document.getElementById('download-brief').addEventListener('click', () => { if (prepared) download('repack-enquiry.txt', prepared + '\n'); });
+  document.getElementById('download-brief').addEventListener('click', () => { if (prepared) download('repack-project-brief.txt', prepared); });
   // Without JavaScript the disabled submit control prevents a native form submission.
   document.getElementById('quote-submit').disabled = false;
 })();
