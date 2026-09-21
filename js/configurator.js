@@ -93,7 +93,7 @@
     const bag = current();
     return `REPACK — ${bag.name}\n` + rows(bag).map(row => row.join(': ')).join('\n') +
       '\n\nSpecifications as listed by REPACK. Contact our team to confirm availability and quantities.\n' +
-      'REPACK Packaging · rkkadm@gmail.com · +62 (021) 29437922 · Mon – Sat: 8:30 AM – 5:00 PM\n';
+      'REPACK Packaging · rkkadm@gmail.com · +62 816-1152-204 · Mon – Sat: 8:30 AM – 4:00 PM\n';
   }
   document.getElementById('use-spec').addEventListener('click', () => {
     quoteBag.value = state.bag;
