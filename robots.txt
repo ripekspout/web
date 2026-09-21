@@ -1,0 +1,10 @@
+# repackpouch.com
+# Crawling is allowed so bots can reach the page and read its robots meta tag.
+# While the site is staging, index.html carries <meta name="robots" content="noindex">,
+# which is what actually keeps it out of search results — a Disallow here would
+# hide that tag and could leave the URL indexed without a description.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://repackpouch.com/sitemap.xml

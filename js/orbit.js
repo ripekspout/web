@@ -22,7 +22,7 @@ async function createView(mount) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.03;
+  renderer.toneMappingExposure = heroView ? 1.06 : 1.03;
   renderer.domElement.setAttribute('aria-hidden', 'true');
   mount.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
@@ -36,7 +36,10 @@ async function createView(mount) {
   // The last light is the surface the pouch stands on bouncing light up. Every other light is overhead, so without
   // it the underside gets nothing and the Bottom view renders as a black hole. It points almost straight up on
   // purpose: any sideways component would also brighten the front and side faces.
-  for (const [colour, power, position] of [[0xfff4e2, 1.6, [.55, 1, .8]], [0xdfe8ff, .4, [-.9, .15, .55]], [0xfff0dd, .7, [-.4, .55, -1]], [0xf1e6d2, 1.5, [.05, -1, .08]]]) {
+  const lighting = heroView
+    ? [[0xfff5e8, 2.5, [-.65, .9, .8]], [0xe8efff, .45, [.8, .25, .6]], [0xfff1df, 1.4, [.4, .6, -.8]], [0xf1e6d2, .5, [.05, -1, .08]]]
+    : [[0xfff4e2, 1.6, [.55, 1, .8]], [0xdfe8ff, .4, [-.9, .15, .55]], [0xfff0dd, .7, [-.4, .55, -1]], [0xf1e6d2, 1.5, [.05, -1, .08]]];
+  for (const [colour, power, position] of lighting) {
     const light = new THREE.DirectionalLight(colour, power);
     light.position.set(...position); scene.add(light);
   }
@@ -48,7 +51,7 @@ async function createView(mount) {
   let handleEnabled = false;
   // Straight sides are a morph target on the body: 0 = natural curve, 1 = straight.
   let sideMorph = null, spoutShiftX = 0, sideMix = 0, sideGoal = 0, sideFrame = 0;
-  const baseAngle = interactive ? 32 : 15;
+  const baseAngle = interactive ? 32 : 34;
   const baseTilt = -9;
   let angle = baseAngle;
   let tilt = baseTilt;
@@ -58,7 +61,7 @@ async function createView(mount) {
   // Opening the spout: the cap unscrews and lifts off along the spout's axis, exposing the mouth.
   const OPEN_LIFT = .026, OPEN_TURNS = 2, OPEN_MS = 1000;
   let cap = null, bore = null, openMix = 0, openGoal = 0, openFrom = 0, openStart = 0, openDuration = OPEN_MS, openFrame = 0;
-  let currentColour = 0xe9dfc8;
+  let currentColour = heroView ? 0xf0e7d5 : 0xe9dfc8;
   const bodyMaterials = [];
   const controls = interactive ? mount.parentElement.querySelector('.rotation-controls') : null;
   function fail() {
@@ -89,7 +92,7 @@ async function createView(mount) {
     mount.classList.add('is-ready');
   }
   function requestDraw() { if (!pending && !failed) { pending = true; requestAnimationFrame(draw); } }
-  function viewDistance(width, height) { return baseHeight * 2.95 * Math.max(1, height / width * .82) / zoom; }
+  function viewDistance(width, height) { return baseHeight * (heroView ? 2.6 : 2.95) * Math.max(1, height / width * .82) / zoom; }
   function clampPan() {
     const room = baseHeight * .7 * (1 - 1 / zoom); // none at 1x, so the pouch can never be lost off-screen
     panX = Math.max(-room, Math.min(room, panX));
@@ -174,9 +177,10 @@ async function createView(mount) {
       if (/front film|back film/i.test(name)) { material.color.setHex(currentColour); bodyMaterials.push(material); }
       else if (/heat seal/i.test(name)) material.color.setHex(0xded2b8);
       else if (/gusset/i.test(name)) material.color.setHex(0xeae0ca); // the base is the same film as the body, just in shade
+      else if (heroView && /spout|flange/i.test(name)) material.color.setHex(0xe5ddc9);
       else if (/cap|spout|flange|tamper/i.test(name)) material.color.setHex(0xbe5f2c);
-      if (/film|seal|gusset/i.test(name)) material.roughness = .3;
-      material.envMapIntensity = .6;
+      if (/film|seal|gusset/i.test(name)) material.roughness = heroView ? .42 : .3;
+      material.envMapIntensity = heroView ? .45 : .6;
       const label = `${node.name || ''} ${node.parent?.name || ''} ${name}`;
       (/spout|cap|flange|tamper/i.test(label) ? spoutParts : bodyParts).push(node);
     });
@@ -299,6 +303,7 @@ async function createView(mount) {
   new ResizeObserver(requestDraw).observe(mount);
   document.addEventListener('visibilitychange', requestDraw);
   if (heroView) {
+    addHeroGroundShadow();
     setupHeroMotion();
     return;
   }
@@ -931,6 +936,33 @@ async function createView(mount) {
     body.updateWorldMatrix(true, true);
   }
 
+  function addHeroGroundShadow() {
+    // A feathered contact shadow sits on the actual standing plane, so it stays
+    // beneath the pouch as the camera turns or the layout changes size.
+    const size = 128, pixels = new Uint8Array(size * size * 4);
+    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+      const radius = Math.hypot((x + .5) / size * 2 - 1, (y + .5) / size * 2 - 1);
+      const offset = (y * size + x) * 4;
+      pixels[offset] = 55; pixels[offset + 1] = 48; pixels[offset + 2] = 35;
+      pixels[offset + 3] = Math.round(140 * Math.exp(-radius * radius * 3) * Math.max(0, 1 - radius * radius));
+    }
+    const texture = new THREE.DataTexture(pixels, size, size);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.magFilter = texture.minFilter = THREE.LinearFilter;
+    texture.needsUpdate = true;
+    const bounds = new THREE.Box3().setFromObject(body);
+    const centre = bounds.getCenter(new THREE.Vector3());
+    const dimensions = bounds.getSize(new THREE.Vector3());
+    const shadow = new THREE.Mesh(
+      new THREE.PlaneGeometry(dimensions.x * 1.9, dimensions.z * 2.8),
+      new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, toneMapped: false })
+    );
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.position.set(centre.x, bounds.min.y - .0006, centre.z);
+    scene.add(shadow);
+    requestDraw();
+  }
+
   function setupHeroMotion() {
     let visible = false;
     let pointerActive = false;
@@ -986,7 +1018,7 @@ async function createView(mount) {
       lastTime = time;
       elapsed += delta;
       const phase = elapsed * Math.PI * 2 / 8000;
-      const idle = Math.sin(phase) * 28;
+      const idle = Math.sin(phase) * 16;
       const ease = 1 - Math.exp(-delta / 180);
       currentYaw += (targetYaw - currentYaw) * ease;
       currentPitch += (targetPitch - currentPitch) * ease;
@@ -1007,7 +1039,7 @@ async function createView(mount) {
       const rect = mount.getBoundingClientRect();
       const x = (event.clientX - rect.left) / rect.width - .5;
       const y = (event.clientY - rect.top) / rect.height - .5;
-      targetYaw = x * 22;
+      targetYaw = x * 12;
       targetPitch = -y * 8;
     });
 
