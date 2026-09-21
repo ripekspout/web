@@ -1,4 +1,4 @@
-/* Two contained product views. Frames are drawn only after interaction or resize. */
+/* The hero animates while visible; the configurator draws after interaction or resize. */
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -64,6 +64,7 @@ async function createView(mount) {
   function fail() {
     failed = true; ready = false; mount.classList.remove('is-ready');
     if (controls) controls.hidden = true;
+    if (heroView) mount.parentElement.querySelector('[data-hero-motion]')?.setAttribute('hidden', '');
   }
   renderer.domElement.addEventListener('webglcontextlost', event => { event.preventDefault(); fail(); });
   function draw() {
@@ -938,7 +939,24 @@ async function createView(mount) {
     let currentYaw = 0;
     let currentPitch = 0;
     let frame = 0;
-    let idleStarted = performance.now();
+    let elapsed = 0;
+    let lastTime = null;
+    let paused = false;
+    const motionButton = mount.parentElement.querySelector('[data-hero-motion]');
+
+    function syncMotionButton() {
+      if (!motionButton) return;
+      motionButton.hidden = reduceMotion.matches || failed;
+      motionButton.textContent = paused ? 'Play motion' : 'Pause motion';
+      motionButton.setAttribute('aria-label', paused ? 'Play product animation' : 'Pause product animation');
+    }
+    syncMotionButton();
+    motionButton?.addEventListener('click', () => {
+      paused = !paused;
+      if (paused) stop();
+      else start();
+      syncMotionButton();
+    });
 
     const observer = new IntersectionObserver(entries => {
       visible = entries[0]?.isIntersecting ?? false;
@@ -948,25 +966,32 @@ async function createView(mount) {
     observer.observe(mount);
 
     function start() {
-      if (frame || reduceMotion.matches || document.hidden) return;
+      if (frame || !visible || paused || failed || reduceMotion.matches || document.hidden) return;
       frame = requestAnimationFrame(animate);
     }
 
     function stop() {
       if (frame) cancelAnimationFrame(frame);
       frame = 0;
+      lastTime = null;
     }
 
     function animate(time) {
       frame = 0;
-      if (!visible || reduceMotion.matches || document.hidden) return;
+      if (!visible || paused || failed || reduceMotion.matches || document.hidden) return;
 
-      // The idle motion starts at the resting pose, then travels only four degrees.
-      const idle = pointerActive ? 0 : Math.sin((time - idleStarted) * .00038) * 4;
-      currentYaw += (targetYaw - currentYaw) * .065;
-      currentPitch += (targetPitch - currentPitch) * .065;
+      // Eight-second turns reveal the pouch depth within the first few seconds.
+      // Keep the turn running under pointer parallax, and freeze its phase when paused.
+      const delta = lastTime === null ? 0 : Math.min(time - lastTime, 64);
+      lastTime = time;
+      elapsed += delta;
+      const phase = elapsed * Math.PI * 2 / 8000;
+      const idle = Math.sin(phase) * 28;
+      const ease = 1 - Math.exp(-delta / 180);
+      currentYaw += (targetYaw - currentYaw) * ease;
+      currentPitch += (targetPitch - currentPitch) * ease;
       angle = baseAngle + idle + currentYaw;
-      tilt = baseTilt + currentPitch;
+      tilt = baseTilt + Math.sin(phase) * 2 + currentPitch;
       requestDraw();
       frame = requestAnimationFrame(animate);
     }
@@ -982,16 +1007,14 @@ async function createView(mount) {
       const rect = mount.getBoundingClientRect();
       const x = (event.clientX - rect.left) / rect.width - .5;
       const y = (event.clientY - rect.top) / rect.height - .5;
-      targetYaw = x * 12;
-      targetPitch = -y * 5;
+      targetYaw = x * 22;
+      targetPitch = -y * 8;
     });
 
     mount.addEventListener('pointerleave', () => {
       pointerActive = false;
       targetYaw = 0;
       targetPitch = 0;
-      // Restart the sine wave at zero so the model first eases to its original pose.
-      idleStarted = performance.now();
     });
 
     document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
@@ -1002,11 +1025,12 @@ async function createView(mount) {
         targetYaw = targetPitch = currentYaw = currentPitch = 0;
         angle = baseAngle;
         tilt = baseTilt;
+        elapsed = 0;
         requestDraw();
       } else {
-        idleStarted = performance.now();
         start();
       }
+      syncMotionButton();
     });
   }
 }

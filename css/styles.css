@@ -51,7 +51,9 @@ em{font-family:Georgia,serif;font-weight:400;color:var(--accent)}
 .hero-footnote span+span{border-left:1px solid var(--border);padding-left:20px}
 .hero-visual{position:relative;min-height:565px;overflow:hidden;border-radius:4px;background:radial-gradient(ellipse at 45% 32%,#f2ecdf,transparent 60%),#e4dece}
 .visual-top,.visual-bottom{position:absolute;z-index:2;left:25px;right:25px;display:flex;justify-content:space-between;gap:15px;color:#666557;font-size:10px;letter-spacing:.065em}
-.visual-top{top:25px}
+.visual-top{top:25px;align-items:center}
+.hero-motion-toggle{flex-shrink:0;min-height:44px;margin-block:-12px;padding:10px 0 10px 10px;border:0;background:transparent;color:var(--ink);font-size:10px;text-decoration:underline;text-underline-offset:4px}
+.hero-motion-toggle:hover{color:var(--accent)}
 .visual-bottom{bottom:25px;border-top:1px solid #c7c1b0;padding-top:17px;letter-spacing:0}
 .hero-watermark{position:absolute;left:14%;top:1%;font:440px/.9 Georgia,serif;color:rgba(255,255,255,.35);letter-spacing:-.12em}
 .product-view{position:relative;overflow:hidden;min-width:0}
